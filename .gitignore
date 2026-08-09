@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Environment and secrets
+.env
+.env.*
+
+# Netlify local dev
+.netlify/
+
+# OS
+.DS_Store

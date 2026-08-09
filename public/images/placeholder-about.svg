@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-label="Placeholder">
+  <rect width="800" height="600" fill="#e5e5e5"/>
+  <rect x="300" y="220" width="200" height="160" rx="8" fill="#d4d4d4"/>
+  <circle cx="360" cy="270" r="24" fill="#c4c4c4"/>
+  <polygon points="300,380 380,300 460,340 520,280 500,380" fill="#c4c4c4"/>
+</svg>

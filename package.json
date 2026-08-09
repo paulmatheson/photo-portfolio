@@ -1,0 +1,15 @@
+{
+  "name": "photos",
+  "description": "Paul Matheson photography gallery",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "netlify dev"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "node-fetch": "^2.7.0"
+  },
+  "author": "Paul Matheson",
+  "license": "ISC"
+}

@@ -1,0 +1,29 @@
+.about-main {
+  max-width: 720px;
+}
+
+.about-placeholder {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  margin: 0 0 2em;
+  border-radius: 4px;
+}
+
+.about-copy {
+  margin: 0;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--photo-muted);
+}
+
+.about-copy + .about-copy {
+  margin-top: 1em;
+}
+
+[data-theme="dark"] .about-placeholder {
+  opacity: 0.85;
+}

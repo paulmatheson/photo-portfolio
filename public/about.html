@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | Paul Matheson</title>
+    <meta name="description" content="About Paul Matheson — photographer.">
+    <link rel="canonical" href="https://photos.paulmatheson.net/about.html">
+    <script>
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme) {
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        }
+    </script>
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="photography.css">
+    <link rel="stylesheet" href="about.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body class="photo-page">
+    <nav class="photo-nav">
+        <a href="/" class="photo-nav-item photo-nav-brand">
+            <div id="logo" aria-hidden="true"></div>
+            <span class="photo-nav-title">Paul Matheson</span>
+        </a>
+
+        <a class="theme-toggle-link photo-nav-theme-mobile" aria-label="Toggle theme">
+            <ion-icon name="sunny-outline" class="theme-toggle-icon"></ion-icon>
+        </a>
+
+        <div class="menu-button" id="menu-button">
+            <div class="bar1"></div>
+            <div class="bar2"></div>
+            <div class="bar3"></div>
+        </div>
+
+        <div class="sidebar bring-backward" id="slideNav">
+            <div class="sidebar-links" id="sidebar-links">
+                <a href="/" class="item">Gallery</a>
+                <a href="/about.html" class="item" aria-current="page">About</a>
+                <ul id="socialIcons">
+                    <li>
+                        <a href="https://github.com/paulmatheson" target="_blank" rel="noopener">
+                            <ion-icon name="logo-github"></ion-icon>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://codepen.io/illpill/" target="_blank" rel="noopener">
+                            <ion-icon name="logo-codepen"></ion-icon>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.linkedin.com/in/mathesonpaul/" target="_blank" rel="noopener">
+                            <ion-icon name="logo-linkedin"></ion-icon>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.instagram.com/illpill_photo/" target="_blank" rel="noopener">
+                            <ion-icon name="logo-instagram"></ion-icon>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://twitter.com/illpill" target="_blank" rel="noopener">
+                            <ion-icon name="logo-twitter"></ion-icon>
+                        </a>
+                    </li>
+                </ul>
+                <a class="theme-toggle-link">
+                    <ion-icon name="sunny-outline" class="theme-toggle-icon"></ion-icon>
+                </a>
+            </div>
+        </div>
+
+        <div class="photo-nav-desktop header-nav">
+            <a href="/about.html" class="photo-nav-item is-current" aria-current="page">
+                <span class="photo-nav-title">About</span>
+                <span class="photo-nav-sub">Background</span>
+            </a>
+            <a class="theme-toggle-link photo-nav-theme" aria-label="Toggle theme">
+                <ion-icon name="sunny-outline" class="theme-toggle-icon"></ion-icon>
+            </a>
+        </div>
+    </nav>
+    <main class="photo-main about-main">
+        <header class="photo-header">
+            <div class="photo-header-top">
+                <h1 class="photo-title">
+                    <span class="photo-title-line">Abo</span>
+                    <span class="photo-title-line">ut</span>
+                </h1>
+            </div>
+            <hr class="photo-rule">
+        </header>
+
+        <img class="about-placeholder" src="images/placeholder-about.svg" alt="Placeholder">
+
+        <p class="about-copy">Coming soon.</p>
+    </main>
+    <footer class="site-footer">
+        <div class="site-footer-top">
+            <a href="/" class="site-footer-brand">Paul Matheson</a>
+        </div>
+        <div class="site-footer-grid">
+            <div class="site-footer-col">
+                <p class="site-footer-label">Menu</p>
+                <ul class="site-footer-links">
+                    <li><a href="/">Gallery</a></li>
+                    <li><a href="/about.html" aria-current="page">About</a></li>
+                </ul>
+            </div>
+            <div class="site-footer-col">
+                <p class="site-footer-label">Elsewhere</p>
+                <ul class="site-footer-links">
+                    <li><a href="https://vsco.co/illpill/gallery" target="_blank" rel="noopener">VSCO</a></li>
+                    <li><a href="https://www.instagram.com/illpill_photo/" target="_blank" rel="noopener">Instagram</a></li>
+                </ul>
+            </div>
+            <div class="site-footer-col">
+                <p class="site-footer-label">Unsplash</p>
+                <div id="unsplash-stats" class="site-footer-stats">
+                    <span class="site-footer-stat-line">Loading stats…</span>
+                </div>
+            </div>
+            <div class="site-footer-col site-footer-col-info">
+                <p class="site-footer-label">Info</p>
+                <p class="site-footer-meta">© 2026</p>
+                <button type="button" class="site-footer-back-top" id="back-to-top" aria-label="Back to top">
+                    <span aria-hidden="true">↑</span>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="scripts/site.js"></script>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+
+</html>
