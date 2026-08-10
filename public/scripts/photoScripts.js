@@ -194,9 +194,21 @@ async function init() {
       `;
     };
 
+    const areItemsUnpositioned = (items) => {
+      if (items.length < 2) return false;
+
+      return items.every((item) => {
+        const top = parseFloat(item.style.top) || 0;
+        const left = parseFloat(item.style.left) || 0;
+        return top < 1 && left < 1;
+      });
+    };
+
     const measureGridHeight = () => {
       const items = galleryLayout.getItemElements();
       if (!items.length) return 0;
+
+      if (areItemsUnpositioned(items)) return 0;
 
       const gridTop = grid.getBoundingClientRect().top;
       let maxBottom = 0;
@@ -212,6 +224,12 @@ async function init() {
     };
 
     const applyGridHeight = () => {
+      const items = galleryLayout?.getItemElements() || [];
+      if (areItemsUnpositioned(items)) {
+        galleryLayout?.layout();
+        return;
+      }
+
       const nextHeight = measureGridHeight();
       if (nextHeight > 0) {
         grid.style.height = `${nextHeight}px`;
@@ -220,34 +238,24 @@ async function init() {
       }
     };
 
-    const syncGridHeight = () => {
-      if (!galleryLayout) return;
-
-      galleryLayout.layout();
-      applyGridHeight();
-    };
-
-    const finalizeGridLayout = () => {
-      syncGridHeight();
-      requestAnimationFrame(applyGridHeight);
-      window.setTimeout(() => {
-        syncGridHeight();
-      }, 200);
-      window.setTimeout(applyGridHeight, 600);
-      window.setTimeout(applyGridHeight, 1200);
-    };
-
-    const scheduleSyncGridHeight = () => {
+    const scheduleLayout = () => {
       if (gridHeightFrame) cancelAnimationFrame(gridHeightFrame);
       gridHeightFrame = requestAnimationFrame(() => {
         gridHeightFrame = null;
-        applyGridHeight();
+        galleryLayout?.layout();
       });
+    };
+
+    const finalizeGridLayout = () => {
+      galleryLayout?.layout();
+      requestAnimationFrame(applyGridHeight);
+      window.setTimeout(applyGridHeight, 200);
+      window.setTimeout(applyGridHeight, 600);
     };
 
     const observeGridImages = () => {
       gridResizeObserver?.disconnect();
-      gridResizeObserver = new ResizeObserver(scheduleSyncGridHeight);
+      gridResizeObserver = new ResizeObserver(scheduleLayout);
       grid.querySelectorAll(".grid-item").forEach((item) => {
         gridResizeObserver.observe(item);
       });
@@ -260,24 +268,37 @@ async function init() {
       "load",
       (event) => {
         if (event.target.matches(".grid-item img")) {
-          scheduleSyncGridHeight();
+          scheduleLayout();
         }
       },
       true,
     );
 
+    const getMasonryGutter = () =>
+      window.matchMedia("(min-width: 900px)").matches ? 24 : 16;
+
+    const createGalleryLayout = () => {
+      const layout = new Isotope(grid, {
+        itemSelector: ".grid-item",
+        layoutMode: "masonry",
+        masonry: { gutter: getMasonryGutter() },
+      });
+
+      layout.on("layoutComplete", applyGridHeight);
+      return layout;
+    };
+
     const rebuildGallery = (photos) =>
       new Promise((resolve) => {
-        const existingItems = galleryLayout.getItemElements();
-        if (existingItems.length) {
-          galleryLayout.remove(existingItems);
-        }
+        gridResizeObserver?.disconnect();
 
+        galleryLayout?.destroy();
         grid.style.height = "";
         grid.innerHTML = photos
           .map((photo) => getPhotoMarkup(photo, { eager: true }))
           .join("");
-        galleryLayout.reloadItems();
+
+        galleryLayout = createGalleryLayout();
 
         const imgLoad = imagesLoaded(grid);
         let settled = false;
@@ -286,6 +307,8 @@ async function init() {
           if (settled) return;
           settled = true;
 
+          galleryLayout.once("layoutComplete", applyGridHeight);
+          galleryLayout.layout();
           observeGridImages();
           finalizeGridLayout();
           galleryLightbox?.refresh();
@@ -298,7 +321,7 @@ async function init() {
           resolve();
         };
 
-        imgLoad.on("progress", scheduleSyncGridHeight);
+        imgLoad.on("progress", scheduleLayout);
 
         imgLoad.on("always", finishRebuild);
 
@@ -401,7 +424,7 @@ async function init() {
       galleryLayout.once("layoutComplete", applyGridHeight);
       galleryLayout.layout();
 
-      imgLoad.on("progress", scheduleSyncGridHeight);
+      imgLoad.on("progress", scheduleLayout);
       imgLoad.on("always", finishAppend);
 
       if (imgLoad.isComplete) {
@@ -414,16 +437,7 @@ async function init() {
       .map(getPhotoMarkup)
       .join("");
 
-    const gutter =
-      window.matchMedia("(min-width: 900px)").matches ? 24 : 16;
-
-    galleryLayout = new Isotope(grid, {
-      itemSelector: ".grid-item",
-      layoutMode: "masonry",
-      masonry: { gutter },
-    });
-
-    galleryLayout.on("layoutComplete", applyGridHeight);
+    galleryLayout = createGalleryLayout();
 
     galleryLightbox = lightGallery(grid, {
       controls: true,
@@ -445,7 +459,7 @@ async function init() {
 
     const imgLoad = imagesLoaded(grid);
 
-    imgLoad.on("progress", scheduleSyncGridHeight);
+    imgLoad.on("progress", scheduleLayout);
 
     imgLoad.on("always", revealInitialItems);
 
