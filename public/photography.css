@@ -34,12 +34,12 @@
 .photo-page nav.photo-nav {
   position: relative;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   width: 100%;
   max-width: none;
   margin: 0 0 0.75em;
-  padding: 1.25em 0;
+  padding: 0.75em 0 1em;
   border-bottom: 1px solid var(--photo-rule);
 }
 
@@ -57,18 +57,19 @@
 .photo-nav-item.photo-nav-brand {
   flex-direction: row;
   align-items: center;
-  gap: 0.65em;
+  gap: 0;
 }
 
 .photo-nav-brand .photo-nav-title {
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1;
 }
 
 .photo-page #logo {
   flex-shrink: 0;
-  height: 22px;
-  width: 22px;
+  height: 80px;
+  width: 80px;
+  margin-right: 16px;
 }
 
 .photo-nav-theme,
@@ -111,7 +112,7 @@
   font-family: "Inter", "Segoe UI", sans-serif;
   font-size: 14px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1;
   letter-spacing: -0.01em;
   color: var(--photo-text);
 }
@@ -139,7 +140,6 @@
 
 .photo-page .menu-button {
   position: static;
-  margin-top: 0.15em;
   flex-shrink: 0;
 }
 
@@ -490,29 +490,27 @@
 
 @media (min-width: 768px) {
   .photo-page nav.photo-nav {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    align-items: start;
-    column-gap: 1.5rem;
-    padding: 1.5em 0 1.25em;
     margin-bottom: 0.85em;
   }
 
-  .photo-nav-brand {
-    grid-column: 1;
-    justify-self: start;
-  }
-
   .photo-nav-desktop {
-    display: contents;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    margin-left: clamp(1.5rem, 4vw, 3rem);
+    min-width: 0;
   }
 
   .photo-nav-desktop .photo-nav-item {
-    justify-self: start;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
   }
 
-  .photo-nav-desktop .photo-nav-item:nth-child(1) {
-    grid-column: 2;
+  .photo-nav-desktop .photo-nav-title {
+    font-size: 14px;
+    line-height: 1;
   }
 
   .photo-nav-theme-mobile {
@@ -521,10 +519,6 @@
 
   .photo-nav-theme {
     display: flex;
-    grid-column: 6;
-    justify-self: end;
-    align-self: start;
-    margin-top: 0.1em;
   }
 
   .photo-page .menu-button,

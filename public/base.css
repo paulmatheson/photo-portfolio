@@ -90,11 +90,11 @@ i {
 }
 
 #logo {
-  background-image: url(images/logo.png);
+  background-image: url(images/avatar-photoport.png);
   background-size: contain;
   background-repeat: no-repeat;
-  height: 25px;
-  width: 25px;
+  height: 100px;
+  width: 100px;
 }
 
 .bring-forward {
