@@ -153,9 +153,6 @@ async function init() {
 
       photoIndex.innerHTML = showIndex ? renderCategoryIndex(categories) : "";
       photoIndex.hidden = !showIndex;
-      document
-        .getElementById("photo-index-bottom-rule")
-        ?.toggleAttribute("hidden", !showIndex);
     }
 
     let visiblePhotoCount = Math.min(GALLERY_BATCH_SIZE, enrichedPhotos.length);
