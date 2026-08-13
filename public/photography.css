@@ -7,9 +7,15 @@
   --photo-rule: #e5e5e5;
   --photo-gutter: 16px;
   --photo-inset: clamp(1rem, 3vw, 2rem);
-  --photo-tag-bg: #f3f3f3;
-  --photo-tag-border: #e8e8e8;
+  --photo-tag-bg: #eaeaea;
+  --photo-tag-bg-hover: #171717;
+  --photo-tag-text-hover: #ffffff;
+  --photo-tag-bg-active-hover: #454a6b;
   --photo-tag-accent: #54597e;
+  --footer-bg: #000000;
+  --footer-text: #f5f5f5;
+  --footer-muted: #9ca3af;
+  --footer-rule: rgba(255, 255, 255, 0.14);
   background: var(--photo-bg);
   background-image: none;
   color: var(--photo-text);
@@ -24,9 +30,16 @@
   --photo-text: #eaeaea;
   --photo-muted: #8f8f8f;
   --photo-rule: #2a2a3a;
-  --photo-tag-bg: rgba(255, 255, 255, 0.06);
+  --photo-tag-bg: rgba(255, 255, 255, 0.08);
+  --photo-tag-bg-hover: rgba(255, 255, 255, 0.14);
+  --photo-tag-text-hover: var(--photo-text);
+  --photo-tag-bg-active-hover: #636a8f;
   --photo-tag-border: rgba(255, 255, 255, 0.12);
   --photo-tag-accent: #54597e;
+  --footer-bg: transparent;
+  --footer-text: var(--photo-text);
+  --footer-muted: var(--photo-muted);
+  --footer-rule: var(--photo-rule);
 }
 
 /* Navigation */
@@ -40,7 +53,6 @@
   max-width: none;
   margin: 0 0 0.75em;
   padding: 0.75em 0 1em;
-  border-bottom: 1px solid var(--photo-rule);
 }
 
 .photo-nav-item {
@@ -182,7 +194,7 @@
 }
 
 .photo-title {
-  margin: 0;
+  margin: 1em 0 0 0;
   max-width: 100%;
   font-family: "Inter", "Segoe UI", sans-serif;
   font-size: clamp(2.5rem, 8vw, 4rem);
@@ -210,7 +222,7 @@
   justify-content: unset;
   width: 100%;
   margin: 0;
-  padding: 0.75em 0;
+  padding: 0.75em 0 1em;
   text-align: left;
 }
 
@@ -235,7 +247,7 @@
   align-items: center;
   margin: 0;
   padding: 0.4em 0.9em;
-  border: 1px solid var(--photo-tag-border);
+  border: 0;
   border-radius: 999px;
   background: var(--photo-tag-bg);
   font-family: "Inter", "Segoe UI", sans-serif;
@@ -247,26 +259,22 @@
   cursor: pointer;
   transition:
     background 0.15s ease,
-    border-color 0.15s ease,
     color 0.15s ease,
     transform 0.15s ease;
 }
 
 .photo-index-button:hover:not(.is-active) {
-  background: #171717;
-  border-color: #171717;
-  color: #ffffff;
+  background: var(--photo-tag-bg-hover);
+  color: var(--photo-tag-text-hover);
 }
 
 .photo-index-button.is-active {
   background: var(--photo-tag-accent);
-  border-color: var(--photo-tag-accent);
   color: #ffffff;
 }
 
 .photo-index-button.is-active:hover {
-  background: #454a6b;
-  border-color: #454a6b;
+  background: var(--photo-tag-bg-active-hover);
   color: #ffffff;
 }
 
@@ -333,9 +341,10 @@
   width: 100%;
   margin-top: 3em;
   padding: 2.5em 0 2em;
-  border-top: 1px solid var(--photo-rule);
+  border-top: 1px solid var(--footer-rule);
+  background: var(--footer-bg);
   font-size: 16px;
-  color: var(--photo-text);
+  color: var(--footer-text);
 }
 
 .site-footer-top {
@@ -350,12 +359,12 @@
   font-weight: 600;
   line-height: 1;
   letter-spacing: -0.03em;
-  color: var(--photo-text);
+  color: var(--footer-text);
   text-decoration: none;
 }
 
 .site-footer-brand:hover {
-  color: var(--photo-muted);
+  color: var(--footer-muted);
 }
 
 .site-footer-col-info {
@@ -372,10 +381,10 @@
   width: 2.5rem;
   height: 2.5rem;
   margin-top: 1.25em;
-  border: 1px solid var(--photo-rule);
+  border: 1px solid var(--footer-rule);
   border-radius: 50%;
   background: transparent;
-  color: var(--photo-text);
+  color: var(--footer-text);
   cursor: pointer;
   font-size: 1rem;
   line-height: 1;
@@ -385,7 +394,7 @@
 }
 
 .site-footer-back-top:hover {
-  border-color: var(--photo-text);
+  border-color: var(--footer-text);
 }
 
 .site-footer-grid {
@@ -402,7 +411,7 @@
   font-weight: 400;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--photo-muted);
+  color: var(--footer-muted);
 }
 
 .site-footer-links {
@@ -421,18 +430,18 @@
   font-size: 14px;
   font-weight: 400;
   line-height: 1.4;
-  color: var(--photo-text);
+  color: var(--footer-text);
   text-decoration: none;
   transition: color 0.15s ease;
 }
 
 .site-footer-links a:hover,
 .site-footer-stat-link:hover {
-  color: var(--photo-muted);
+  color: var(--footer-muted);
 }
 
 .site-footer-links a[aria-current="page"] {
-  color: var(--photo-muted);
+  color: var(--footer-muted);
 }
 
 .site-footer-stats {
@@ -446,7 +455,7 @@
   font-size: 14px;
   font-weight: 400;
   line-height: 1.4;
-  color: var(--photo-text);
+  color: var(--footer-text);
 }
 
 .site-footer-meta {
@@ -455,7 +464,7 @@
   font-size: 14px;
   font-weight: 300;
   line-height: 1.5;
-  color: var(--photo-text);
+  color: var(--footer-text);
 }
 
 /* Tablet */
