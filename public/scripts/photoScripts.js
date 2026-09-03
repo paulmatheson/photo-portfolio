@@ -1,4 +1,6 @@
 const GALLERY_BATCH_SIZE = 10;
+// Matches the c_limit width used for thumbUrl in functions/getPhotos.js.
+const GALLERY_THUMB_MAX_WIDTH = 600;
 
 const escapeAttr = (value) =>
   String(value)
@@ -47,6 +49,20 @@ const parseCaption = (title) => {
     locationKey: locationKey || "photo",
     locationLabel,
     year,
+  };
+};
+
+const getThumbSize = (photo) => {
+  const width = Number(photo.width);
+  const height = Number(photo.height);
+
+  if (!width || !height || width < 0 || height < 0) return null;
+
+  const scale = Math.min(1, GALLERY_THUMB_MAX_WIDTH / width);
+
+  return {
+    width: Math.round(width * scale),
+    height: Math.round(height * scale),
   };
 };
 
@@ -143,6 +159,7 @@ async function init() {
           year: parsed.year || "Unknown",
           categoryKey: category?.key || "",
           categoryLabel: category?.label || "",
+          thumbSize: getThumbSize(photo),
         },
       };
     });
@@ -159,8 +176,6 @@ async function init() {
     let galleryLayout;
     let galleryLightbox;
     let activeFilter = "*";
-    let gridHeightFrame = null;
-    let gridResizeObserver;
 
     const getPhotosForCategory = (categoryKey) => {
       if (!categoryKey) {
@@ -173,11 +188,16 @@ async function init() {
     };
 
     const getPhotoMarkup = (photo, { eager = false } = {}) => {
-      const { caption, categoryKey } = photo.meta;
+      const { caption, categoryKey, thumbSize } = photo.meta;
       const categoryAttr = categoryKey
         ? ` data-category="${escapeAttr(categoryKey)}"`
         : "";
       const loadingAttr = eager ? "" : ' loading="lazy"';
+      // Intrinsic dimensions let the browser reserve the final height before
+      // the image downloads, so masonry positions items once and never shifts.
+      const sizeAttrs = thumbSize
+        ? ` width="${thumbSize.width}" height="${thumbSize.height}"`
+        : "";
 
       return `
         <a
@@ -185,110 +205,63 @@ async function init() {
           data-src="${photo.fullUrl}"
           data-sub-html="${escapeAttr(caption)}"${categoryAttr}
         >
-          <img src="${photo.thumbUrl}"${loadingAttr} alt="${escapeAttr(photo.alt || caption)}" />
+          <img src="${photo.thumbUrl}"${sizeAttrs}${loadingAttr} decoding="async" alt="${escapeAttr(photo.alt || caption)}" />
           <span class="grid-item-caption">${escapeHtml(caption)}</span>
         </a>
       `;
     };
 
-    const areItemsUnpositioned = (items) => {
-      if (items.length < 2) return false;
+    const getMasonryGutter = () =>
+      window.matchMedia("(min-width: 900px)").matches ? 24 : 16;
 
-      return items.every((item) => {
-        const top = parseFloat(item.style.top) || 0;
-        const left = parseFloat(item.style.left) || 0;
-        return top < 1 && left < 1;
-      });
-    };
-
-    const measureGridHeight = () => {
-      const items = galleryLayout.getItemElements();
-      if (!items.length) return 0;
-
-      if (areItemsUnpositioned(items)) return 0;
-
-      const gridTop = grid.getBoundingClientRect().top;
-      let maxBottom = 0;
-
-      items.forEach((item) => {
-        const top = parseFloat(item.style.top) || 0;
-        const positionedBottom = top + item.offsetHeight;
-        const renderedBottom = item.getBoundingClientRect().bottom - gridTop;
-        maxBottom = Math.max(maxBottom, positionedBottom, renderedBottom);
+    const createGalleryLayout = () =>
+      new Isotope(grid, {
+        itemSelector: ".grid-item",
+        layoutMode: "masonry",
+        masonry: { gutter: getMasonryGutter() },
+        transitionDuration: 0,
       });
 
-      return Math.ceil(maxBottom);
-    };
-
-    const applyGridHeight = () => {
-      const items = galleryLayout?.getItemElements() || [];
-      if (areItemsUnpositioned(items)) {
-        galleryLayout?.layout();
-        return;
-      }
-
-      const nextHeight = measureGridHeight();
-      if (nextHeight > 0) {
-        grid.style.height = `${nextHeight}px`;
-      } else {
-        grid.style.height = "0px";
-      }
-    };
-
-    const scheduleLayout = () => {
-      if (gridHeightFrame) cancelAnimationFrame(gridHeightFrame);
-      gridHeightFrame = requestAnimationFrame(() => {
-        gridHeightFrame = null;
-        galleryLayout?.layout();
-      });
-    };
-
-    const finalizeGridLayout = () => {
-      galleryLayout?.layout();
-      requestAnimationFrame(applyGridHeight);
-      window.setTimeout(applyGridHeight, 200);
-      window.setTimeout(applyGridHeight, 600);
-    };
-
-    const observeGridImages = () => {
-      gridResizeObserver?.disconnect();
-      gridResizeObserver = new ResizeObserver(scheduleLayout);
-      grid.querySelectorAll(".grid-item").forEach((item) => {
-        gridResizeObserver.observe(item);
-      });
+    // Catches cached images that finished before the load listener attached.
+    const markImagesLoaded = () => {
       grid.querySelectorAll(".grid-item img").forEach((img) => {
-        gridResizeObserver.observe(img);
+        if (img.complete) img.classList.add("is-loaded");
       });
     };
 
+    // Each image fades itself in on arrival; a failed image is still marked so
+    // its alt text is not left invisible.
     grid.addEventListener(
       "load",
       (event) => {
         if (event.target.matches(".grid-item img")) {
-          scheduleLayout();
+          event.target.classList.add("is-loaded");
         }
       },
       true,
     );
 
-    const getMasonryGutter = () =>
-      window.matchMedia("(min-width: 900px)").matches ? 24 : 16;
+    grid.addEventListener(
+      "error",
+      (event) => {
+        if (event.target.matches(".grid-item img")) {
+          event.target.classList.add("is-loaded");
+        }
+      },
+      true,
+    );
 
-    const createGalleryLayout = () => {
-      const layout = new Isotope(grid, {
-        itemSelector: ".grid-item",
-        layoutMode: "masonry",
-        masonry: { gutter: getMasonryGutter() },
+    // Photos Cloudinary reported without dimensions can only be measured once
+    // they load, so correct the layout in a single pass when that happens.
+    const relayoutOnLoad = (target, onDone) =>
+      imagesLoaded(target, () => {
+        galleryLayout?.layout();
+        markImagesLoaded();
+        onDone?.();
       });
-
-      layout.on("layoutComplete", applyGridHeight);
-      return layout;
-    };
 
     const rebuildGallery = (photos) =>
       new Promise((resolve) => {
-        gridResizeObserver?.disconnect();
-
         galleryLayout?.destroy();
         grid.style.height = "";
         grid.innerHTML = photos
@@ -296,35 +269,9 @@ async function init() {
           .join("");
 
         galleryLayout = createGalleryLayout();
-
-        const imgLoad = imagesLoaded(grid);
-        let settled = false;
-
-        const finishRebuild = () => {
-          if (settled) return;
-          settled = true;
-
-          galleryLayout.once("layoutComplete", applyGridHeight);
-          galleryLayout.layout();
-          observeGridImages();
-          finalizeGridLayout();
-          galleryLightbox?.refresh();
-          revealItems(
-            grid.querySelectorAll(".grid-item:not(.is-revealed)"),
-          );
-          grid.querySelectorAll(".grid-item").forEach((item) => {
-            item.classList.add("is-revealed");
-          });
-          resolve();
-        };
-
-        imgLoad.on("progress", scheduleLayout);
-
-        imgLoad.on("always", finishRebuild);
-
-        if (imgLoad.isComplete) {
-          finishRebuild();
-        }
+        galleryLightbox?.refresh();
+        revealItems(grid.querySelectorAll(".grid-item"));
+        relayoutOnLoad(grid, resolve);
       });
 
     const updateLoadMoreButton = () => {
@@ -351,17 +298,6 @@ async function init() {
           clearProps: "opacity",
         },
       );
-    };
-
-    const revealInitialItems = () => {
-      observeGridImages();
-      finalizeGridLayout();
-      revealItems(
-        grid.querySelectorAll(".grid-item:not(.is-revealed)"),
-      );
-      grid.querySelectorAll(".grid-item").forEach((item) => {
-        item.classList.add("is-revealed");
-      });
     };
 
     const setActiveIndexButton = (button) => {
@@ -402,36 +338,17 @@ async function init() {
         -nextPhotos.length,
       );
 
+      // `appended` places only the new items, leaving the existing ones put.
       galleryLayout.appended(newItems);
-      observeGridImages();
-
-      const imgLoad = imagesLoaded(newItems);
-      let appendSettled = false;
-
-      const finishAppend = () => {
-        if (appendSettled) return;
-        appendSettled = true;
-
-        finalizeGridLayout();
-        galleryLightbox?.refresh();
-        revealItems(newItems);
-        updateLoadMoreButton();
-      };
-
-      galleryLayout.once("layoutComplete", applyGridHeight);
-      galleryLayout.layout();
-
-      imgLoad.on("progress", scheduleLayout);
-      imgLoad.on("always", finishAppend);
-
-      if (imgLoad.isComplete) {
-        finishAppend();
-      }
+      galleryLightbox?.refresh();
+      revealItems(newItems);
+      updateLoadMoreButton();
+      relayoutOnLoad(newItems);
     };
 
     grid.innerHTML = enrichedPhotos
       .slice(0, visiblePhotoCount)
-      .map(getPhotoMarkup)
+      .map((photo) => getPhotoMarkup(photo))
       .join("");
 
     galleryLayout = createGalleryLayout();
@@ -454,15 +371,8 @@ async function init() {
       await applyFilter(isActive ? null : category, isActive ? null : button);
     });
 
-    const imgLoad = imagesLoaded(grid);
-
-    imgLoad.on("progress", scheduleLayout);
-
-    imgLoad.on("always", revealInitialItems);
-
-    if (imgLoad.isComplete) {
-      revealInitialItems();
-    }
+    revealItems(grid.querySelectorAll(".grid-item"));
+    relayoutOnLoad(grid);
 
     loadMoreButton?.addEventListener("click", appendNextPhotos);
     updateLoadMoreButton();
