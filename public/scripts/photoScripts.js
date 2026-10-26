@@ -1,3 +1,5 @@
+import { animateEntrance } from "./pageIntro.js";
+
 const GALLERY_BATCH_SIZE = 10;
 // Matches the c_limit width used for thumbUrl in functions/getPhotos.js.
 const GALLERY_THUMB_MAX_WIDTH = 600;
@@ -120,9 +122,6 @@ const renderCategoryIndex = (categories) => {
 
 async function init() {
   try {
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
     const response = await fetch("/.netlify/functions/getPhotos");
     const photos = await response.json();
 
@@ -170,6 +169,9 @@ async function init() {
 
       photoIndex.innerHTML = showIndex ? renderCategoryIndex(categories) : "";
       photoIndex.hidden = !showIndex;
+      if (showIndex) {
+        animateEntrance(photoIndex.querySelectorAll(".photo-index-button"));
+      }
     }
 
     let visiblePhotoCount = Math.min(GALLERY_BATCH_SIZE, enrichedPhotos.length);
@@ -205,8 +207,10 @@ async function init() {
           data-src="${photo.fullUrl}"
           data-sub-html="${escapeAttr(caption)}"${categoryAttr}
         >
-          <img src="${photo.thumbUrl}"${sizeAttrs}${loadingAttr} decoding="async" alt="${escapeAttr(photo.alt || caption)}" />
-          <span class="grid-item-caption">${escapeHtml(caption)}</span>
+          <span class="grid-item-body">
+            <img src="${photo.thumbUrl}"${sizeAttrs}${loadingAttr} decoding="async" alt="${escapeAttr(photo.alt || caption)}" />
+            <span class="grid-item-caption">${escapeHtml(caption)}</span>
+          </span>
         </a>
       `;
     };
@@ -278,26 +282,24 @@ async function init() {
       if (!loadMoreButton) return;
 
       const hasMorePhotos = visiblePhotoCount < enrichedPhotos.length;
-      loadMoreButton.hidden = !hasMorePhotos || activeFilter !== "*";
+      const show = hasMorePhotos && activeFilter === "*";
+      const becameVisible = loadMoreButton.hidden && show;
+      loadMoreButton.hidden = !show;
       loadMoreButton.disabled = false;
+      if (!becameVisible) return;
+
+      const count = grid.querySelectorAll(".grid-item-body").length;
+      const gap = count > 1 ? Math.min(56, 400 / (count - 1)) : 0;
+      animateEntrance([loadMoreButton], {
+        startDelay: gap * Math.max(count - 1, 0),
+      });
     };
 
-    const revealItems = (items) => {
-      if (!items.length) return;
-
-      if (reducedMotion || !window.gsap) return;
-
-      gsap.fromTo(
-        items,
-        { opacity: 0 },
-        {
-          opacity: 1,
-          duration: 0.35,
-          stagger: 0.03,
-          ease: "power1.out",
-          clearProps: "opacity",
-        },
-      );
+    const revealItems = (items, startDelay = 0) => {
+      const bodies = Array.from(items)
+        .map((item) => item.querySelector(".grid-item-body") || item)
+        .filter(Boolean);
+      animateEntrance(bodies, { startDelay });
     };
 
     const setActiveIndexButton = (button) => {
@@ -371,7 +373,11 @@ async function init() {
       await applyFilter(isActive ? null : category, isActive ? null : button);
     });
 
-    revealItems(grid.querySelectorAll(".grid-item"));
+    const chipCount =
+      photoIndex?.querySelectorAll(".photo-index-button").length ?? 0;
+    const afterChips =
+      chipCount > 1 ? Math.min(56, 400 / (chipCount - 1)) * (chipCount - 1) : 0;
+    revealItems(grid.querySelectorAll(".grid-item"), afterChips);
     relayoutOnLoad(grid);
 
     loadMoreButton?.addEventListener("click", appendNextPhotos);
@@ -381,36 +387,4 @@ async function init() {
   }
 }
 
-function animatePageIntro() {
-  if (
-    !window.gsap ||
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  ) {
-    return;
-  }
-
-  gsap
-    .timeline({ defaults: { ease: "power2.out" } })
-    .from(".photo-nav-item, .photo-nav-theme, .photo-nav-theme-mobile", {
-      opacity: 0,
-      y: -8,
-      duration: 0.35,
-      stagger: 0.04,
-      clearProps: "opacity,transform",
-    })
-    .from(".photo-title-line", { opacity: 0, y: 12, duration: 0.45, stagger: 0.06 }, "-=0.2")
-    .from(
-      ".photo-index-button",
-      {
-        opacity: 0,
-        y: 8,
-        duration: 0.3,
-        stagger: 0.04,
-        clearProps: "opacity,transform",
-      },
-      "-=0.15",
-    );
-}
-
-animatePageIntro();
 init();
