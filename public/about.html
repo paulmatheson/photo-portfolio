@@ -12,6 +12,12 @@
         if (savedTheme) {
             document.documentElement.setAttribute("data-theme", savedTheme);
         }
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            document.documentElement.setAttribute("data-intro-boot", "");
+            window.setTimeout(function () {
+                document.documentElement.removeAttribute("data-intro-boot");
+            }, 2000);
+        }
     </script>
     <link rel="stylesheet" href="base.css">
     <link rel="stylesheet" href="photography.css">
@@ -21,24 +27,25 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 
-<body class="photo-page">
+<body class="photo-page" data-page-intro="pending">
     <nav class="photo-nav">
-        <a href="/" class="photo-nav-item photo-nav-brand">
+        <a href="/" class="photo-nav-item photo-nav-brand" data-intro>
             <div id="logo" aria-hidden="true"></div>
             <span class="photo-nav-title">Paul Matheson</span>
         </a>
 
-        <a class="theme-toggle-link photo-nav-theme-mobile" aria-label="Toggle theme">
+        <a class="theme-toggle-link photo-nav-theme-mobile" data-intro aria-label="Toggle theme">
             <ion-icon name="sunny-outline" class="theme-toggle-icon"></ion-icon>
         </a>
 
-        <div class="menu-button" id="menu-button">
-            <div class="bar1"></div>
-            <div class="bar2"></div>
-            <div class="bar3"></div>
-        </div>
+        <button class="menu-button" id="menu-button" type="button" data-intro aria-expanded="false"
+            aria-controls="slideNav" aria-label="Menu">
+            <span class="bar1"></span>
+            <span class="bar2"></span>
+            <span class="bar3"></span>
+        </button>
 
-        <div class="sidebar bring-backward" id="slideNav">
+        <div class="sidebar" id="slideNav" role="dialog" aria-modal="true" aria-label="Menu">
             <div class="sidebar-links" id="sidebar-links">
                 <a href="/" class="item">Gallery</a>
                 <a href="/about.html" class="item" aria-current="page">About</a>
@@ -75,7 +82,7 @@
             </div>
         </div>
 
-        <div class="photo-nav-desktop header-nav">
+        <div class="photo-nav-desktop header-nav" data-intro-controls>
             <a href="/about.html" class="photo-nav-item is-current" aria-current="page">
                 <span class="photo-nav-title">About</span>
             </a>
@@ -87,18 +94,18 @@
     <main class="photo-main about-main">
         <header class="photo-header">
             <div class="photo-header-top">
-                <h1 class="photo-title">
+                <h1 class="photo-title" data-intro>
                     <span class="photo-title-line">About</span>
                 </h1>
             </div>
-            <hr class="photo-rule">
+            <hr class="photo-rule" data-intro>
         </header>
 
-        <img class="about-placeholder" src="images/placeholder-about.svg" alt="Placeholder">
+        <img class="about-placeholder" src="images/placeholder-about.svg" alt="Placeholder" data-intro>
 
-        <p class="about-copy">Coming soon.</p>
+        <p class="about-copy" data-intro>Coming soon.</p>
     </main>
-    <footer class="site-footer">
+    <footer class="site-footer" data-intro>
         <div class="site-footer-top">
             <a href="/" class="site-footer-brand">Paul Matheson</a>
         </div>

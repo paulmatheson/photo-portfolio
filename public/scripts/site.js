@@ -1,5 +1,6 @@
 import { switchTheme } from "./themeSwitch.js";
-import { menuAnimation } from "./menuAnimation.js";
+import { initMenu } from "./menuAnimation.js";
+import "./pageIntro.js";
 
 const menuButton = document.getElementById("menu-button");
 const toggleLinks = document.querySelectorAll(".theme-toggle-link");
@@ -17,9 +18,7 @@ toggleLinks.forEach((link) => {
   });
 });
 
-menuButton?.addEventListener("click", () => {
-  menuAnimation(menuButton);
-});
+initMenu(menuButton);
 
 backToTopButton?.addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });

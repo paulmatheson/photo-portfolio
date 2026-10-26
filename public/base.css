@@ -86,7 +86,7 @@ i {
   cursor: pointer;
   text-decoration: none;
   color: inherit;
-  transition: var(--transition-std);
+  transition: color 0.2s ease-in-out;
 }
 
 #logo {
@@ -97,39 +97,48 @@ i {
   width: 100px;
 }
 
-.bring-forward {
-  z-index: 99;
-}
-
-.bring-backward {
-  z-index: -1;
-}
-
 .sidebar {
   position: fixed;
-  top: 0;
-  height: 0;
-  width: 100vw;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: var(--bg-color);
   font-size: 1.825em;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0.22s;
+}
+
+.sidebar.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 0s;
+}
+
+body.no-scroll > nav > a {
+  visibility: hidden;
 }
 
 .sidebar-links {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.8em;
-  opacity: 0;
-  height: 80%;
+  gap: 1.15em;
+  width: min(100%, 22rem);
+  padding: 4.5rem 1.5rem 2rem;
 }
 
-.fade-in {
-  opacity: 1;
-  transition: 1s;
+.sidebar-links > a {
+  font-weight: 400;
+  letter-spacing: -0.02em;
 }
 
 .sidebar ul {
@@ -137,18 +146,8 @@ i {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  gap: 1.4em;
-}
-
-.navSlide {
-  animation: slide 0.3s linear forwards;
-  left: 0;
-}
-
-@keyframes slide {
-  100% {
-    height: 100vh;
-  }
+  gap: 1.15em;
+  margin-top: 0.35em;
 }
 
 .menu-button {
@@ -158,23 +157,39 @@ i {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
   cursor: pointer;
   z-index: 100;
+}
+
+.menu-button:focus-visible {
+  outline: 2px solid var(--font-bold);
+  outline-offset: 3px;
+  border-radius: 8px;
 }
 
 .bar1,
 .bar2,
 .bar3 {
-  width: 30px;
-  height: 2px;
+  width: 22px;
+  height: 1.5px;
   background-color: var(--font-faded);
-  margin: 4px 0;
-  transition: 0.3s;
   border-radius: 5px;
+  transition:
+    transform 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.2s ease;
 }
 
 .change .bar1 {
-  transform: rotate(-45deg) translate(-10px, 8px);
+  transform: translateY(7.5px) rotate(45deg);
 }
 
 .change .bar2 {
@@ -182,13 +197,16 @@ i {
 }
 
 .change .bar3 {
-  transform: rotate(45deg) translate(-6px, -4px);
+  transform: translateY(-7.5px) rotate(-45deg);
 }
 
 .no-scroll {
-  height: 100vh;
-  overflow-y: hidden;
-  padding-right: 15px;
+  overflow: hidden;
+}
+
+:root[data-intro-boot] [data-page-intro="pending"] :is([data-intro], [data-intro-group] > *, [data-intro-controls] > *) {
+  opacity: 0;
+  transition: none;
 }
 
 h4 {
@@ -214,7 +232,10 @@ p {
   padding: 0 1em;
   font-size: 13px;
   text-decoration: none;
-  transition: var(--transition-std);
+  transition:
+    background-color 0.2s ease-in-out,
+    color 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
   display: flex;
   gap: 0.5em;
   box-shadow: var(--btn-box-shadow);
@@ -253,7 +274,11 @@ p {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .find-me-socials .btn {
+  .find-me-socials .btn,
+  .sidebar,
+  .bar1,
+  .bar2,
+  .bar3 {
     transition: none;
   }
 

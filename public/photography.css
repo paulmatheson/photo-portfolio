@@ -259,8 +259,7 @@
   cursor: pointer;
   transition:
     background 0.15s ease,
-    color 0.15s ease,
-    transform 0.15s ease;
+    color 0.15s ease;
 }
 
 .photo-index-button:hover:not(.is-active) {
@@ -305,6 +304,10 @@
   /* The global `a` rule transitions every property, which would animate the
      top/left values masonry writes. Positioning must be instant. */
   transition: none;
+}
+
+.grid-item-body {
+  display: block;
 }
 
 .grid-item img {
